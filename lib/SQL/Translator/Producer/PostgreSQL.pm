@@ -543,17 +543,17 @@ sub create_index
     my @fields     =  $index->fields;
     return unless @fields;
 
-    my $index_using = '';
-    my $index_where = '';
+    my $index_using;
+    my $index_where;
     for my $opt ( $index->options ) {
       if ( ref $opt eq 'HASH' ) {
         foreach my $key (keys %$opt) {
           my $value = $opt->{$key};
           next unless defined $value;
-          if ( $key eq 'using' ) {
+          if ( uc($key) eq 'USING' ) {
             $index_using = "USING $value";
           }
-          elsif ( $key eq 'where' ) {
+          elsif ( uc($key) eq 'WHERE' ) {
             $index_where = "WHERE $value";
           }
         }
@@ -570,11 +570,8 @@ sub create_index
     }
     elsif ( $type eq NORMAL ) {
         $index_def =
-            'CREATE INDEX ' . $generator->quote($name) . ' on ' . $generator->quote($table_name) .
-            ($index_using ne '' ? ' ' . $index_using : '') .
-            ' ' . $field_names .
-            ($index_where ne '' ? ' ' . $index_where : '')
-            ;
+            'CREATE INDEX ' . $generator->quote($name) . ' on ' . $generator->quote($table_name) . ' ' .
+            join ' ', grep {defined} ($index_using, $field_names, $index_where);
     }
     else {
         warn "Unknown index type ($type) on table $table_name.\n"
