@@ -614,12 +614,12 @@ pg_data_type :
             $return = { type => 'bytea' };
         }
     |
-    /(timestamptz|timestamp)(?:\(\d\))?( with(?:out)? time zone)?/i
+    / ( timestamp (?:tz)? ) (?: \( \d \) )? ( \s with (?:out)? \s time \s zone )? /ix
         {
             $return = { type => 'timestamp' . ($2||'') };
         }
     |
-    /(timetz|time)(?:\(\d\))?( with(?:out)? time zone)?/i
+    / ( time (?:tz)? ) (?: \( \d \) )? ( \s with (?:out)? \s time \s zone )? /ix
         {
             $return = { type => 'time' . ($2||'') };
         }
@@ -1006,11 +1006,11 @@ SET : /set/i
 NAME : DQSTRING
     | /\w+/
 
-DQSTRING : '"' /((?:[^"]|"")+)/ '"'
-    { ($return = $item[2]) =~ s/""/"/g; }
+DQSTRING : '"' <skip: ''> /((?:[^"]|"")+)/ '"'
+    { ($return = $item[3]) =~ s/""/"/g; }
 
-SQSTRING : "'" /((?:[^']|'')*)/ "'"
-    { ($return = $item[2]) =~ s/''/'/g }
+SQSTRING : "'" <skip: ''> /((?:[^']|'')*)/ "'"
+    { ($return = $item[3]) =~ s/''/'/g }
 
 VALUE : /[-+]?\d*\.?\d+(?:[eE]\d+)?/
     | SQSTRING

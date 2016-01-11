@@ -1,7 +1,26 @@
 Changes for SQL::Translator
 
  * Add support for monotonically increasing SQLite autoincs (GH#47)
+ * Add support for CHECK constraint in SQLite producer (GH#57)
+ * Add support for CHECK constraint in POD producer (GH#63)
+ * Fix forgotten quoting in the MySQL DROP TABLE diff producer (GH#50)
+ * Fix Pg grammar parsing of UUID, time, timetz columns (RT#100196, GH#52)
+ * Add support for USING and WHERE on indexes in PostgreSQL producer
+   and parser (RT#63814, GH#52)
+ * Improve add_trigger consistency between producers (GH#48)
  * Declare dependencies in deterministic order (RT#102859)
+ * Multiple speedups of naive internal debugging mechanism (GH#54)
+ * Remove dependency on List::MoreUtils ( http://is.gd/lmu_cac_debacle )
+ * Fix parsing of strings with leading whitespace for MySQL, Oracle, PostgreSQL,
+   SQLServer and SQLite
+ * Fix parsing of MySQL column comments (RT#83380)
+ * Fix multi-line comments in YAML, JSON and PostgreSQL producers
+ * Fix identifier quoting in PostgreSQL diff producer
+ * Fix incorrect type conversion from various BigInt AutoIncrement to the
+   PostgreSQL-specific bigserial (GH#72)
+ * Fix missing semicolons between PostGIS statements
+ * Fix string and identifier quoting in PostGIS statements
+ * Fix intermittent test failures (RT#108460)
 
 0.11021 2015-01-29
 

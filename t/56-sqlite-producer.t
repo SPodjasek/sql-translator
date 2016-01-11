@@ -5,6 +5,7 @@ use strict;
 use Test::More;
 use Test::SQL::Translator qw(maybe_plan);
 
+use SQL::Translator::Schema;
 use SQL::Translator::Schema::View;
 use SQL::Translator::Schema::Table;
 use SQL::Translator::Producer::SQLite;
@@ -209,6 +210,45 @@ $SQL::Translator::Producer::SQLite::NO_QUOTES = 0;
         my ($def) = SQL::Translator::Producer::SQLite::create_constraint($constr);
         is($def, 'CREATE UNIQUE INDEX "foobar_idx02" ON "foobar" ("foo")', 'constraint created');
     }
+}
+
+{
+    my $schema = SQL::Translator::Schema->new();
+    my $table = $schema->add_table( name => 'foo', fields => ['bar'] );
+
+    {
+        my $trigger = $schema->add_trigger(
+            name                => 'mytrigger',
+            perform_action_when => 'before',
+            database_events     => 'update',
+            on_table            => 'foo',
+            fields              => ['bar'],
+            action              => 'BEGIN baz() END'
+        );
+        my ($def) = SQL::Translator::Producer::SQLite::create_trigger($trigger);
+        is($def, 'CREATE TRIGGER "mytrigger" before update on "foo" BEGIN baz() END', 'trigger created');
+    }
+
+    {
+        my $trigger = $schema->add_trigger(
+            name                => 'mytrigger2',
+            perform_action_when => 'after',
+            database_events     => ['insert'],
+            on_table            => 'foo',
+            fields              => ['bar'],
+            action              => 'baz()'
+        );
+        my ($def) = SQL::Translator::Producer::SQLite::create_trigger($trigger);
+        is($def, 'CREATE TRIGGER "mytrigger2" after insert on "foo" BEGIN baz() END', 'trigger created');
+    }
+}
+
+{
+    my $table = SQL::Translator::Schema::Table->new( name => 'foobar', fields => ['foo'] );
+    my $constr = $table->add_constraint(name => 'constr', expression => "foo != 'baz'");
+    my ($def) = SQL::Translator::Producer::SQLite::create_check_constraint($constr);
+
+    is($def, q{CONSTRAINT "constr" CHECK(foo != 'baz')}, 'check constraint created');
 }
 
 done_testing;
