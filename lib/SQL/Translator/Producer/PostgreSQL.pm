@@ -134,6 +134,25 @@ and table_constraint is:
       [ USING acc_method ] ( func_name( column [, ... ]) [ ops_name ] )
       [ WHERE predicate ]
 
+=head1 Create Trigger Syntax
+
+  CREATE [ CONSTRAINT ] TRIGGER name { BEFORE | AFTER | INSTEAD OF } { event [ OR ... ] }
+      ON table_name
+      [ FROM referenced_table_name ]
+      [ NOT DEFERRABLE | [ DEFERRABLE ] [ INITIALLY IMMEDIATE | INITIALLY DEFERRED ] ]
+      [ FOR [ EACH ] { ROW | STATEMENT } ]
+      [ WHEN ( condition ) ]
+      EXECUTE PROCEDURE function_name ( arguments )
+
+  where event can be one of:
+
+      INSERT
+      UPDATE [ OF column_name [, ... ] ]
+      DELETE
+      TRUNCATE
+
+  DROP TRIGGER [ IF EXISTS ] name ON table_name [ CASCADE | RESTRICT ]
+
 =cut
 
 sub produce {
@@ -611,7 +630,9 @@ sub create_trigger {
 
   my @statements;
 
-  push @statements, sprintf( 'DROP TRIGGER IF EXISTS %s', $generator->quote($trigger->name) )
+  push @statements, sprintf( 'DROP TRIGGER IF EXISTS %s ON %s',
+      $generator->quote($trigger->name),
+      $generator->quote($trigger->table->name) )
     if $options->{add_drop_trigger};
 
   my $scope = $trigger->scope || '';
