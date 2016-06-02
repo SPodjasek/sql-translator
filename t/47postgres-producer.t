@@ -725,7 +725,7 @@ is($drop_view_9_1_produced, $drop_view_9_1_expected, "My DROP VIEW statement for
   my @trigger1_sqls = SQL::Translator::Producer::PostgreSQL::create_trigger($trigger1, $create_trigger_opts);
   ok(@trigger1_sqls == 2, "DROP & CREATE TRIGGER");
   is($trigger1_sqls[0], "DROP TRIGGER IF EXISTS test_trigger ON test_table", "trigger dropped");
-  is($trigger1_sqls[1], "CREATE TRIGGER test_trigger before update OR insert ON test_table "
+  is($trigger1_sqls[1], "CREATE TRIGGER test_trigger before update OR insert\n  ON test_table "
     . "FOR EACH ROW EXECUTE PROCEDURE test_trigger_proc()", "trigger created");
 }
 
