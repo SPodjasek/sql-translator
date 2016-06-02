@@ -731,18 +731,28 @@ is($drop_view_9_1_produced, $drop_view_9_1_expected, "My DROP VIEW statement for
 
 # Functions
 {
-  my $func1_sql = 'CREATE FUNCTION test_func1(arg1 character varying) ' .
-    'RETURNS character varying AS \'my ($arg1) = @_; return "Hello: " . ($arg1 // "unnamed");\' LANGUAGE plperl';
+  my $func1_sql = 'CREATE FUNCTION test_func1 (arg1 character varying)' . "\n" .
+    ' RETURNS character varying' . "\n" .
+    ' AS \'my ($arg1) = @_; return "Hello: " . ($arg1 // "unnamed");\'' . "\n" .
+    ' LANGUAGE plperl';
   my $function1 = SQL::Translator::Schema::Procedure->new(
     name => 'test_func1',
-    sql  => $func1_sql
+    sql  => $func1_sql,
+    parameters => [{name => 'arg1', type => 'character varying'}],
+    extra => {
+      returns => {type => 'character varying'},
+      definitions => [
+        {quote => "'", body => 'my ($arg1) = @_; return "Hello: " . ($arg1 // "unnamed");'},
+        {language => 'plperl'},
+      ]
+    }
   );
 
   my $create_function_opts = { add_drop_procedure => 1, no_comments => 1 };
   my @function1_sqls = SQL::Translator::Producer::PostgreSQL::create_procedure($function1, $create_function_opts);
   ok(@function1_sqls == 2, "DROP & CREATE FUNCTION");
-  is($function1_sqls[0], "DROP FUNCTION IF EXISTS test_func1", "function dropped");
-  is($function1_sqls[1], $func1_sql, "function created");
+  eq_or_diff($function1_sqls[0], "DROP FUNCTION IF EXISTS test_func1", "function dropped");
+  eq_or_diff($function1_sqls[1], $func1_sql, "function created");
 }
 
 done_testing;
