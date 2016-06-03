@@ -169,10 +169,10 @@ sub compute_differences {
 
     my %src_tables_checked = ();
     my %src_tables_deleted = ();
-    my @tar_tables = sort { $a->name cmp $b->name } $target_schema->get_tables;
+    my @tar_tables = sort { $a->qualified_name cmp $b->qualified_name } $target_schema->get_tables;
     ## do original/source tables exist in target?
     for my $tar_table ( @tar_tables ) {
-      my $tar_table_name = $tar_table->name;
+      my $tar_table_name = $tar_table->qualified_name;
 
       my $src_table;
 
