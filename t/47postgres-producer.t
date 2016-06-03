@@ -39,7 +39,7 @@ my $PRODUCER = \&SQL::Translator::Producer::PostgreSQL::create_field;
                                                  is_unique => 0 );
   $table->add_field($field);
   my ($create, $fks) = SQL::Translator::Producer::PostgreSQL::create_table($table, { quote_table_names => q{"} });
-  is($table->name, 'foo.bar');
+  is($table->qualified_name, 'foo.bar');
 
   my $expected = <<EOESQL;
 --
