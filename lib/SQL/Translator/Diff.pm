@@ -272,6 +272,8 @@ sub compute_differences {
       $src_procedure_name = lc $src_procedure_name if $self->case_insensitive;
       $src_procedures_checked{$src_procedure_name} = 1;
 
+      $producer_class->can('create_procedure')->( $src_procedure ) unless $src_procedure->sql;
+      $producer_class->can('create_procedure')->( $tgt_procedure ) unless $tgt_procedure->sql;
       # Compare SQL in procedure declaration
       next unless $src_procedure->sql ne $tgt_procedure->sql;
       push @{$self->procedures_to_modify}, $tgt_procedure;

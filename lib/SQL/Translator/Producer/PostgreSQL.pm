@@ -714,7 +714,7 @@ sub create_procedure {
 
   my @statements;
 
-  push @statements, sprintf( 'DROP FUNCTION IF EXISTS %s', $generator->quote($procedure->name) )
+  push @statements, drop_procedure( $procedure )
     if $options->{add_drop_procedure};
 
   my $sql = 'CREATE FUNCTION ';
@@ -755,17 +755,30 @@ sub create_procedure {
   }
 
   push @statements, $sql;
+  $procedure->sql( $sql );
 
   return @statements;
 }
 
 sub drop_procedure {
-    my ($procedure, $options) = @_;
-    my $generator = _generator($options);
+  my ($procedure, $options) = @_;
+  my $generator = _generator($options);
 
-    my $out = "DROP FUNCTION " . $generator->quote($procedure->name);
+  my $sql = 'DROP FUNCTION ';
+  $sql .= $generator->quote($procedure->name);
+  $sql .= ' (';
+  my @args = ();
+  foreach my $arg (@{$procedure->parameters}) {
+    $arg = {name => $arg} if ref($arg) ne 'HASH';
+    push @args, join(' ', map $arg->{$_},
+                          grep defined($arg->{$_}),
+                          qw/argmode name type/);
+  }
+  $sql .= join(', ', @args);
+  $sql .= ')';
+  $sql .= "\n";
 
-    return $out;
+  return $sql;
 }
 
 sub convert_datatype
